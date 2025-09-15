@@ -2,161 +2,77 @@
 #include <string>
 using namespace std;
 
-// Node structure for singly linked list
 struct Node {
     string prompt;
     Node* next;
-
-    Node(string data) {
-        prompt = data;
-        next = nullptr;
-    }
+    Node(string p) : prompt(p), next(nullptr) {}
 };
 
 class PromptHistory {
-private:
-    Node* head;
+    Node* head = nullptr;
 
 public:
-    PromptHistory() {
-        head = nullptr;
-    }
-
-    // Add a new prompt at the end
-    void addPrompt(string prompt) {
+    void add(string prompt) {
         Node* newNode = new Node(prompt);
-        if (head == nullptr) {
-            head = newNode;
-        } else {
+        if (!head) head = newNode;
+        else {
             Node* temp = head;
-            while (temp->next != nullptr)
-                temp = temp->next;
+            while (temp->next) temp = temp->next;
             temp->next = newNode;
         }
-        cout << "Prompt added successfully!\n";
     }
 
-    // Display all prompts
-    void displayHistory() {
-        if (head == nullptr) {
-            cout << "No prompt history found.\n";
-            return;
-        }
-        Node* temp = head;
-        int count = 1;
-        cout << "\nChatGPT Prompt History:\n";
-        while (temp != nullptr) {
-            cout << count++ << ". " << temp->prompt << "\n";
+    void display() {
+        if (!head) { cout << "No prompt history.\n"; return; }
+        Node* temp = head; int i = 1;
+        while (temp) {
+            cout << i++ << ". " << temp->prompt << endl;
             temp = temp->next;
         }
     }
 
-    // Delete a prompt by position
-    void deletePrompt(int position) {
-        if (head == nullptr) {
-            cout << "History is empty.\n";
-            return;
-        }
-
-        if (position == 1) {
-            Node* temp = head;
+    void del(int pos) {
+        if (!head) return;
+        if (pos == 1) {
+            Node* tmp = head;
             head = head->next;
-            delete temp;
-            cout << "Prompt deleted at position 1.\n";
+            delete tmp;
             return;
         }
-
-        Node* prev = head;
-        for (int i = 1; i < position - 1 && prev != nullptr; i++) {
-            prev = prev->next;
-        }
-
-        if (prev == nullptr || prev->next == nullptr) {
-            cout << "Invalid position!\n";
-            return;
-        }
-
-        Node* delNode = prev->next;
-        prev->next = delNode->next;
+        Node* temp = head;
+        for (int i = 1; temp && i < pos - 1; i++) temp = temp->next;
+        if (!temp || !temp->next) return;
+        Node* delNode = temp->next;
+        temp->next = delNode->next;
         delete delNode;
-
-        cout << "Prompt deleted at position " << position << ".\n";
     }
 
-    // Count total prompts
-    int countPrompts() {
-        int count = 0;
-        Node* temp = head;
-        while (temp != nullptr) {
-            count++;
-            temp = temp->next;
-        }
-        return count;
-    }
-
-    // Clear entire history
-    void clearHistory() {
-        Node* temp;
-        while (head != nullptr) {
-            temp = head;
+    void clear() {
+        while (head) {
+            Node* tmp = head;
             head = head->next;
-            delete temp;
+            delete tmp;
         }
-        cout << "All prompt history cleared.\n";
     }
 
-    ~PromptHistory() {
-        clearHistory();
-    }
+    ~PromptHistory() { clear(); }
 };
 
-// ----------- MAIN FUNCTION ------------
 int main() {
-    PromptHistory history;
-    int choice;
-    string prompt;
-    int pos;
-
+    PromptHistory ph;
+    int ch, pos; string input;
     do {
-        cout << "\n----- ChatGPT Prompt History -----\n";
-        cout << "1. Add Prompt\n";
-        cout << "2. Display History\n";
-        cout << "3. Delete Prompt by Position\n";
-        cout << "4. Count Prompts\n";
-        cout << "5. Clear All History\n";
-        cout << "0. Exit\n";
-        cout << "Enter your choice: ";
-        cin >> choice;
-        cin.ignore(); // clear newline from input buffer
-
-        switch (choice) {
-            case 1:
-                cout << "Enter your ChatGPT prompt:\n";
-                getline(cin, prompt);
-                history.addPrompt(prompt);
-                break;
-            case 2:
-                history.displayHistory();
-                break;
-            case 3:
-                cout << "Enter position to delete: ";
-                cin >> pos;
-                history.deletePrompt(pos);
-                break;
-            case 4:
-                cout << "Total prompts: " << history.countPrompts() << "\n";
-                break;
-            case 5:
-                history.clearHistory();
-                break;
-            case 0:
-                cout << "Exiting...\n";
-                break;
-            default:
-                cout << "Invalid choice. Try again.\n";
-        }
-
-    } while (choice != 0);
-
-    return 0;
+        cout << "\n1.Add 2.Display 3.Delete 4.Clear 0.Exit: ";
+        cin >> ch; cin.ignore();
+        if (ch == 1) {
+            cout << "Enter prompt: ";
+            getline(cin, input);
+            ph.add(input);
+        } else if (ch == 2) ph.display();
+        else if (ch == 3) {
+            cout << "Enter position to delete: ";
+            cin >> pos;
+            ph.del(pos);
+        } else if (ch == 4) ph.clear();
+    } while (ch != 0);
 }
